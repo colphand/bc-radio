@@ -35,18 +35,7 @@ export default function CollectionPage() {
 
     return (
         <>
-            <BCSidebar />
             <SidebarInset>
-                <header className="flex h-16 shrink-0 items-center gap-2 px-4 border-b">
-                    <SidebarTrigger className="-ml-1" />
-                    <div className="flex flex-1 items-center gap-2">
-                        <h1 className="text-lg font-semibold">Collection</h1>
-                        {currentUser && (
-                            <span className="text-sm text-muted-foreground">({currentUser})</span>
-                        )}
-                    </div>
-                </header>
-
                 <div className="flex-1 space-y-4 p-4 pt-6">
                     {albums.length === 0 ? (
                         <div className="flex items-center justify-center h-64">

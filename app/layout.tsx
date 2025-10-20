@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { AlbumProvider } from "@/contexts/AlbumContext";
+import { PlayerProvider } from "@/contexts/PlayerContext";
+import { BottomPlayer } from "@/components/bottom-player";
+import { BCSidebar } from "@/components/bc-sidebar";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -30,9 +33,20 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AlbumProvider>
-          <SidebarProvider>
-            {children}
-          </SidebarProvider>
+          <PlayerProvider>
+            <SidebarProvider>
+              <BCSidebar />
+              <SidebarInset>
+                <header className="flex h-16 shrink-0 items-center gap-2 px-4 border-b">
+                  <SidebarTrigger className="-ml-1" />
+                </header>
+                <div className="flex-1 pb-24"> {/* Add padding bottom for the bottom player */}
+                  {children}
+                </div>
+              </SidebarInset>
+              <BottomPlayer />
+            </SidebarProvider>
+          </PlayerProvider>
         </AlbumProvider>
       </body>
     </html>
