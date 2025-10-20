@@ -34,10 +34,10 @@ function writePlaylists(playlists: PlaylistEntry[]) {
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { username: string; playlistName: string; history: string } }
+  { params }: { params: Promise<{ username: string; playlistName: string; history: string }> }
 ) {
   try {
-    const { username, playlistName, history } = params;
+    const { username, playlistName, history } = await params;
     const url = await request.text();
     
     const decodedPlaylistName = decodeURIComponent(playlistName);
@@ -85,10 +85,10 @@ export async function POST(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { username: string; playlistName: string } }
+  { params }: { params: Promise<{ username: string; playlistName: string }> }
 ) {
   try {
-    const { username, playlistName } = params;
+    const { username, playlistName } = await params;
     const decodedPlaylistName = decodeURIComponent(playlistName);
     
     const playlists = readPlaylists();

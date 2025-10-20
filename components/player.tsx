@@ -1,10 +1,16 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { BandcampDataBlob, MoreDataResponse, ItemInfo } from '@/types/bandcamp';
+import { BandcampDataBlob, MoreDataResponse, ItemInfo, Track } from '@/types/bandcamp';
 import { useTrackList } from '@/hooks/useTrackList';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import Image from 'next/image';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { SkipBack, SkipForward, X, ListPlus } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface PlayerProps {
     username: string;
@@ -25,7 +31,6 @@ export default function Player({
     const [fanName, setFanName] = useState('');
     const [cookied, setCookied] = useState<boolean | null>(null);
     const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
-    const [isPlaying, setIsPlaying] = useState(false);
     const [sequencing, setSequencing] = useState<'shuffle' | 'alphabetic'>('shuffle');
 
     const audioRef = useRef<HTMLAudioElement>(null);
@@ -197,7 +202,6 @@ export default function Player({
             audioRef.current.src = tracks[index].songUrl;
             audioRef.current.load();
             audioRef.current.play();
-            setIsPlaying(true);
         }
     };
 
@@ -218,18 +222,6 @@ export default function Player({
             const prevIndex = currentTrackIndex - 1;
             setCurrentTrackIndex(prevIndex);
             playTrack(prevIndex);
-        }
-    };
-
-    const handleTogglePause = () => {
-        if (audioRef.current) {
-            if (isPlaying) {
-                audioRef.current.pause();
-                setIsPlaying(false);
-            } else {
-                audioRef.current.play();
-                setIsPlaying(true);
-            }
         }
     };
 
@@ -268,8 +260,10 @@ export default function Player({
 
     if (loading) {
         return (
-            <div id="loading">
-                <div id="loading-image">Loading...</div>
+            <div className="fixed inset-0 flex items-center justify-center bg-background">
+                <div className="text-center">
+                    <div className="text-2xl font-semibold">Loading...</div>
+                </div>
             </div>
         );
     }
@@ -279,129 +273,150 @@ export default function Player({
     const cookieStatus = cookied === true ? ' (cookied)' : cookied === false ? ' (invalid cookie)' : '';
 
     return (
-        <div id="player-container">
-            <div id="player">
-                <div id="art-container">
-                    {currentTrack?.artId && (
-                        <Image
-                            id="album-art"
-                            src={`https://f4.bcbits.com/img/a${currentTrack.artId}_10.jpg`}
-                            alt="Album art"
-                            width={800}
-                            height={800}
-                            priority
-                            unoptimized
-                        />
-                    )}
+        <div className="h-screen flex flex-col lg:flex-row">
+            {/* Album Art */}
+            <div className="shrink-0 lg:w-1/2 bg-black flex items-center justify-center">
+                {currentTrack?.artId && (
+                    <Image
+                        src={`https://f4.bcbits.com/img/a${currentTrack.artId}_10.jpg`}
+                        alt="Album art"
+                        width={800}
+                        height={800}
+                        priority
+                        unoptimized
+                        className="w-full h-auto object-contain"
+                    />
+                )}
+            </div>
+
+            {/* Player Controls */}
+            <div className="flex-1 flex flex-col p-6 space-y-4 overflow-hidden lg:min-w-[450px]">
+                {/* Audio Controls */}
+                <div className="flex items-center gap-2">
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={handlePrev}
+                        disabled={currentTrackIndex === 0}
+                    >
+                        <SkipBack className="h-4 w-4" />
+                    </Button>
+                    <audio
+                        ref={audioRef}
+                        controls
+                        preload="none"
+                        onEnded={handleNext}
+                        className="flex-1"
+                    />
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={handleNext}
+                    >
+                        <SkipForward className="h-4 w-4" />
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={handleSkip}
+                        title="Skip album"
+                    >
+                        <X className="h-4 w-4" />
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={handleTogglePlaylist}
+                        title="Add to playlist"
+                    >
+                        <ListPlus className="h-4 w-4" />
+                    </Button>
                 </div>
 
-                <div id="not-art">
-                    <div id="audio-controls">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                            className="prev-next"
-                            src="/images/prev-outline.png"
-                            alt="prev"
-                            width={30}
-                            height={38}
-                            onClick={handlePrev}
-                        />
-                        <audio
-                            ref={audioRef}
-                            id="current-song"
-                            controls
-                            preload="none"
-                            onEnded={handleNext}
-                        />
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                            className="prev-next"
-                            src="/images/next-outline.png"
-                            alt="next"
-                            width={30}
-                            height={38}
-                            onClick={handleNext}
-                        />
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                            className="prev-next"
-                            src="/images/delete.png"
-                            alt="skip"
-                            width={30}
-                            height={30}
-                            onClick={handleSkip}
-                        />
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                            className="prev-next"
-                            src="/images/playlist.png"
-                            alt="add to playlist"
-                            width={30}
-                            height={30}
-                            onClick={handleTogglePlaylist}
-                        />
-                    </div>
+                {/* Song Title */}
+                <a
+                    href={currentTrack?.itemUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xl font-semibold text-center truncate hover:underline"
+                >
+                    {currentTrack && `${currentTrack.artist}: ${currentTrack.title}`}
+                </a>
 
-                    <a href={currentTrack?.itemUrl} id="song-title" target="_blank" rel="noopener noreferrer">
-                        {currentTrack && `${currentTrack.artist}: ${currentTrack.title}`}
-                    </a>
-
-                    <div id="list-title">
-                        <span id="collection-title">
-                            {collectionTitle}{cookieStatus}
-                        </span>
-                        <div id="sort-controls">
-                            <input
-                                type="radio"
-                                id="radio-shuffle"
-                                name="sequencing"
-                                value="shuffle"
-                                checked={sequencing === 'shuffle'}
-                                onChange={() => {
-                                    setSequencing('shuffle');
-                                    resequence();
+                {/* Collection Title & Sort Controls */}
+                <Card>
+                    <CardContent className="pt-4">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
+                            <span className="text-sm font-medium truncate">
+                                {collectionTitle}{cookieStatus}
+                            </span>
+                            <ToggleGroup
+                                type="single"
+                                value={sequencing}
+                                onValueChange={(value) => {
+                                    if (value) {
+                                        setSequencing(value as 'shuffle' | 'alphabetic');
+                                        sortTracks(value as 'shuffle' | 'alphabetic');
+                                        const nextIndex = getNextUnplayedIndex(0);
+                                        if (nextIndex !== null) {
+                                            setCurrentTrackIndex(nextIndex);
+                                            playTrack(nextIndex);
+                                        }
+                                    }
                                 }}
-                            />
-                            <label className="sort-label" htmlFor="radio-shuffle">Shuffle</label>
-                            <input
-                                type="radio"
-                                id="radio-alphabetic"
-                                name="sequencing"
-                                value="alphabetic"
-                                checked={sequencing === 'alphabetic'}
-                                onChange={() => {
-                                    setSequencing('alphabetic');
-                                    resequence();
-                                }}
-                            />
-                            <label className="sort-label" htmlFor="radio-alphabetic">Alphabetic</label>
-                        </div>
-                    </div>
-
-                    <select id="collection-list" size={3} value={currentTrackIndex} onChange={(e) => {
-                        const index = parseInt(e.target.value);
-                        setCurrentTrackIndex(index);
-                        playTrack(index);
-                    }}>
-                        {tracks.map((track: any, index: number) => (
-                            <option
-                                key={index}
-                                value={index}
-                                className={track.isSkipped ? 'skippedTrack' : track.isPlayed ? 'playedTrack' : ''}
+                                className="shrink-0"
                             >
-                                {track.isPlaylist && '✅ '}
-                                {track.artist}: {track.title}
-                            </option>
-                        ))}
-                    </select>
+                                <ToggleGroupItem value="shuffle" aria-label="Shuffle">
+                                    Shuffle
+                                </ToggleGroupItem>
+                                <ToggleGroupItem value="alphabetic" aria-label="Alphabetic">
+                                    Alphabetic
+                                </ToggleGroupItem>
+                            </ToggleGroup>
+                        </div>
 
-                    <p id="help2">
-                        Bandcamp Collection Player.{' '}
-                        <a href="https://github.com/ralphgonz/bcradio" target="_blank" rel="noopener noreferrer">
-                            Help & source
-                        </a>
-                    </p>
-                </div>
+                        {/* Track List */}
+                        <Select
+                            value={currentTrackIndex.toString()}
+                            onValueChange={(value) => {
+                                const index = parseInt(value);
+                                setCurrentTrackIndex(index);
+                                playTrack(index);
+                            }}
+                        >
+                            <SelectTrigger className="w-full">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="max-h-[300px]">
+                                {tracks.map((track: Track, index: number) => (
+                                    <SelectItem
+                                        key={index}
+                                        value={index.toString()}
+                                        className={cn(
+                                            track.isSkipped && "bg-yellow-100 dark:bg-yellow-900",
+                                            track.isPlayed && !track.isSkipped && "bg-gray-100 dark:bg-gray-800"
+                                        )}
+                                    >
+                                        {track.isPlaylist && '✅ '}
+                                        {track.artist}: {track.title}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+
+                        <p className="text-xs text-muted-foreground mt-3">
+                            Bandcamp Collection Player.{' '}
+                            <a
+                                href="https://github.com/ralphgonz/bcradio"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="hover:underline"
+                            >
+                                Help & source
+                            </a>
+                        </p>
+                    </CardContent>
+                </Card>
             </div>
         </div>
     );
