@@ -1,103 +1,200 @@
-import Image from "next/image";
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Player from '@/components/player';
+
+interface PlaylistItem {
+  username: string;
+  playlistName: string;
+  url: string;
+  history: number;
+}
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [username, setUsername] = useState('');
+  const [history, setHistory] = useState('200');
+  const [identityCookie, setIdentityCookie] = useState('');
+  const [playlists, setPlaylists] = useState<PlaylistItem[]>([]);
+  const [showPlayer, setShowPlayer] = useState(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+  // Check if we're loading from URL params
+  useEffect(() => {
+    const urlUsername = searchParams.get('username');
+    const urlHistory = searchParams.get('history');
+    const urlIdentity = searchParams.get('identity');
+
+    if (urlUsername) {
+      setUsername(urlUsername);
+      setHistory(urlHistory || '200');
+      setIdentityCookie(urlIdentity || '');
+      setShowPlayer(true);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    // Load playlists
+    fetch('/api/playlists')
+      .then(res => res.text())
+      .then(data => {
+        if (!data) return;
+
+        const items: PlaylistItem[] = [];
+        const lines = data.split('\r\n');
+
+        lines.forEach(line => {
+          if (!line) return;
+          const [user, name, hist, url] = line.split('|');
+          items.push({
+            username: user,
+            playlistName: name,
+            url,
+            history: parseInt(hist),
+          });
+        });
+
+        setPlaylists(items);
+      })
+      .catch(err => console.error('Failed to load playlists:', err));
+  }, []);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!username.trim()) {
+      alert('Please enter a username');
+      return;
+    }
+
+    const params = new URLSearchParams({
+      username: username.trim(),
+      history: history.trim(),
+      identity: identityCookie.trim(),
+    });
+
+    router.push(`/?${params.toString()}`);
+    setShowPlayer(true);
+  };
+
+  const playPlaylist = (user: string, name: string, url: string, hist: number) => {
+    setUsername(user);
+    setHistory(hist.toString());
+
+    const params = new URLSearchParams({
+      username: user,
+      history: hist.toString(),
+      identity: identityCookie.trim(),
+      plname: name,
+      pl: url,
+    });
+
+    router.push(`/?${params.toString()}`);
+    setShowPlayer(true);
+  };
+
+  if (showPlayer) {
+    return (
+      <Player
+        username={username}
+        numberToLoad={parseInt(history)}
+        identityCookie={identityCookie}
+        playlistName={searchParams.get('plname') || null}
+        playlistFilterItems={searchParams.get('pl')?.split(',') || null}
+      />
+    );
+  }
+
+  // Group playlists by username
+  const groupedPlaylists: Record<string, PlaylistItem[]> = {};
+  playlists.forEach(p => {
+    if (!groupedPlaylists[p.username]) {
+      groupedPlaylists[p.username] = [];
+    }
+    groupedPlaylists[p.username].push(p);
+  });
+
+  return (
+    <div className="params-container">
+      <div id="params">
+        <h2 id="title1">Bandcamp Collection Player</h2>
+        <p id="help1">
+          <a href="https://github.com/ralphgonz/bcradio" target="_blank" rel="noopener noreferrer">
+            Help & source
+          </a>
+        </p>
+
+        <form id="params-form" onSubmit={handleSubmit}>
+          <div>
+            <label className="text-label" htmlFor="user-name">
+              Bandcamp username:
+            </label>
+            <input
+              id="user-name"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              autoFocus
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            <br />
+          </div>
+          <div>
+            <label className="text-label" htmlFor="history">
+              Load additional purchases:
+            </label>
+            <input
+              id="history"
+              type="number"
+              value={history}
+              onChange={(e) => setHistory(e.target.value)}
+            />
+            <br />
+          </div>
+          <div>
+            <label className="text-label" htmlFor="identity-cookie">
+              (Optional) &quot;identity&quot; cookie:
+            </label>
+            <input
+              id="identity-cookie"
+              type="text"
+              value={identityCookie}
+              onChange={(e) => setIdentityCookie(e.target.value)}
+            />
+            <br />
+          </div>
+          <div>
+            <input id="submit-button" type="submit" value="Get Started" />
+          </div>
+        </form>
+
+        <h2 id="title2">Playlists</h2>
+        <div id="playlists">
+          {Object.keys(groupedPlaylists).length === 0 ? (
+            <p>No playlists available</p>
+          ) : (
+            Object.entries(groupedPlaylists).map(([user, userPlaylists]) => (
+              <div key={user}>
+                <p>{user}</p>
+                <ul>
+                  {userPlaylists.map((p, i) => (
+                    <li key={i}>
+                      <a
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          playPlaylist(p.username, p.playlistName, p.url, p.history);
+                        }}
+                      >
+                        {p.playlistName}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))
+          )}
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </div>
     </div>
   );
 }

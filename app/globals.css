@@ -3,6 +3,280 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* BCRadio Styles */
+html {
+  -webkit-text-size-adjust: none;
+}
+
+body {
+  font-family: arial, sans-serif;
+  color: whitesmoke;
+  background-color: grey;
+  margin: 0;
+}
+
+img {
+  border-width: 0;
+}
+
+audio {
+  flex-grow: 1;
+  height: 34px;
+  width: max(50px, 20vw);
+  align-self: center;
+}
+
+a {
+  text-decoration: none;
+  color: #BBFFFF;
+}
+
+p {
+  font-size: small;
+  margin-bottom: 5px;
+}
+
+ul {
+  margin-top: 0px;
+}
+
+input[type=text],
+input[type=number] {
+  width: 110px;
+}
+
+:focus {
+  outline: 0 !important;
+}
+
+.text-label {
+  display: inline-block;
+  width: 210px;
+  text-align: left;
+  margin-bottom: 8px;
+}
+
+.playedTrack {
+  background-color: #b0b0b0;
+}
+
+.skippedTrack {
+  background-color: #d0c050;
+}
+
+.prev-next {
+  align-self: center;
+  cursor: pointer;
+}
+
+#params {
+  padding: 10px;
+}
+
+#params-form {
+  margin: 30px 0 0 0;
+}
+
+#playlists {
+  margin: 0;
+}
+
+#submit-button {
+  margin-top: 10px;
+  background-color: #BBFFFF;
+  border-color: #BBFFFF;
+  width: 320px;
+  height: 30px;
+  font-size: 16px;
+}
+
+#title1 {
+  color: #BBFFFF;
+  font-family: Georgia, serif;
+  font-size: 22px;
+  margin: 0;
+}
+
+#title2 {
+  color: #BBFFFF;
+  margin: 30px 0 6px 0;
+}
+
+#help1 {
+  font-size: small;
+  margin: 3px 0 0 0;
+}
+
+#loading {
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  position: fixed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1.0;
+  background-color: white;
+  z-index: 99;
+  text-align: center;
+}
+
+#player-container {
+  height: 100%;
+  display: grid;
+  grid-template-columns: auto;
+  grid-template-rows: auto;
+  grid-template-areas: "player";
+}
+
+#player {
+  height: 100%;
+  grid-area: player;
+  display: grid;
+  grid-template-columns: auto;
+  grid-template-rows: min-content 1fr;
+  grid-template-areas: "art" "notArt";
+}
+
+#art-container {
+  outline: 0;
+  border: none;
+  -moz-outline-style: none;
+  outline-style: none;
+  grid-area: art;
+}
+
+#album-art {
+  height: 100vw;
+  width: 100vw;
+  object-fit: cover;
+}
+
+#not-art {
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 6px;
+  background-color: grey;
+  grid-area: notArt;
+  display: grid;
+  grid-template-columns: auto;
+  grid-template-rows: min-content min-content min-content 1fr min-content;
+  grid-template-areas: "r1" "r2" "r3" "r4" "r5";
+}
+
+#audio-controls {
+  margin-top: 4px;
+  margin-bottom: 4px;
+  display: flex;
+  grid-area: r1;
+}
+
+#song-title {
+  font-size: 24px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  outline: 0;
+  border: none;
+  grid-area: r2;
+  width: 100%;
+  text-align: center;
+}
+
+#list-title {
+  width: 100%;
+  font-size: small;
+  margin-bottom: 2px;
+  margin-top: 15px;
+  grid-area: r3;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto;
+  grid-template-areas: "collector sorts";
+}
+
+#collection-title {
+  grid-area: collector;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+}
+
+#sort-controls {
+  grid-area: sorts;
+  justify-self: end;
+  margin-top: -4px;
+}
+
+.sort-label {
+  margin-left: 4px;
+  margin-right: 8px;
+  font-size: small;
+}
+
+#collection-list {
+  width: 100%;
+  height: 100%;
+  background-color: #d0e0f0;
+  grid-area: r4;
+}
+
+#help2 {
+  font-size: small;
+  margin: 4px 0 0 0;
+  grid-area: r5;
+}
+
+/* Landscape */
+@media (min-aspect-ratio: 11/10) {
+  #player {
+    display: grid;
+    grid-template-columns: minmax(0, max-content) minmax(450px, 1fr);
+    grid-template-rows: auto;
+    grid-template-areas: "art controls";
+  }
+  #art-container {
+    align-self: normal;
+    grid-area: art;
+    display: flex;
+    flex-direction: column;
+  }
+  #album-art {
+    align-self: self-start;
+    max-width: 100%;
+    width: 100vh;
+    max-height: 100vh;
+  }
+  #not-art {
+    min-width: 450px;
+    width: 100%;
+    grid-area: controls;
+  }
+}
+
+/* Mini player */
+@media (min-aspect-ratio: 11/10) and (max-height: 220px) {
+  #player {
+    grid-template-columns: minmax(0, max-content) minmax(280px, 1fr);
+  }
+  #not-art {
+    min-width: 280px;
+  }
+  #list-title {
+    display: none;
+  }
+  #collection-list {
+    display: none;
+  }
+  #help2 {
+    display: none;
+  }
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
