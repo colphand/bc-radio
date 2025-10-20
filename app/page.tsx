@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { CollectionPlayer } from '@/components/collection-player';
+import Player from '@/components/player';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -99,7 +99,7 @@ export default function Home() {
 
   if (showPlayer) {
     return (
-      <CollectionPlayer
+      <Player
         username={username}
         numberToLoad={parseInt(history)}
         identityCookie={identityCookie}
@@ -119,95 +119,93 @@ export default function Home() {
   });
 
   return (
-    <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-      <div className="container mx-auto p-6 max-w-2xl">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-3xl font-bold">Bandcamp Collection Player</CardTitle>
-            <CardDescription>
-              <a
-                href="https://github.com/ralphgonz/bcradio"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary hover:underline"
-              >
-                Help & source
-              </a>
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="user-name">Bandcamp username</Label>
-                <Input
-                  id="user-name"
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Enter your Bandcamp username"
-                  autoFocus
-                />
-              </div>
+    <div className="container mx-auto p-6 max-w-2xl">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-3xl font-bold">Bandcamp Collection Player</CardTitle>
+          <CardDescription>
+            <a
+              href="https://github.com/ralphgonz/bcradio"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+            >
+              Help & source
+            </a>
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="user-name">Bandcamp username</Label>
+              <Input
+                id="user-name"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Enter your Bandcamp username"
+                autoFocus
+              />
+            </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="history">Load additional purchases</Label>
-                <Input
-                  id="history"
-                  type="number"
-                  value={history}
-                  onChange={(e) => setHistory(e.target.value)}
-                />
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="history">Load additional purchases</Label>
+              <Input
+                id="history"
+                type="number"
+                value={history}
+                onChange={(e) => setHistory(e.target.value)}
+              />
+            </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="identity-cookie">(Optional) &quot;identity&quot; cookie</Label>
-                <Input
-                  id="identity-cookie"
-                  type="text"
-                  value={identityCookie}
-                  onChange={(e) => setIdentityCookie(e.target.value)}
-                  placeholder="Paste your Bandcamp identity cookie"
-                />
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="identity-cookie">(Optional) &quot;identity&quot; cookie</Label>
+              <Input
+                id="identity-cookie"
+                type="text"
+                value={identityCookie}
+                onChange={(e) => setIdentityCookie(e.target.value)}
+                placeholder="Paste your Bandcamp identity cookie"
+              />
+            </div>
 
-              <Button type="submit" className="w-full">
-                Get Started
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+            <Button type="submit" className="w-full">
+              Get Started
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
 
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle className="text-2xl">Playlists</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {Object.keys(groupedPlaylists).length === 0 ? (
-              <p className="text-muted-foreground">No playlists available</p>
-            ) : (
-              <div className="space-y-4">
-                {Object.entries(groupedPlaylists).map(([user, userPlaylists]) => (
-                  <div key={user}>
-                    <h3 className="font-semibold mb-2">{user}</h3>
-                    <ul className="space-y-1 ml-4">
-                      {userPlaylists.map((p, i) => (
-                        <li key={i}>
-                          <button
-                            onClick={() => playPlaylist(p.username, p.playlistName, p.url, p.history)}
-                            className="text-primary hover:underline text-left"
-                          >
-                            {p.playlistName}
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle className="text-2xl">Playlists</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {Object.keys(groupedPlaylists).length === 0 ? (
+            <p className="text-muted-foreground">No playlists available</p>
+          ) : (
+            <div className="space-y-4">
+              {Object.entries(groupedPlaylists).map(([user, userPlaylists]) => (
+                <div key={user}>
+                  <h3 className="font-semibold mb-2">{user}</h3>
+                  <ul className="space-y-1 ml-4">
+                    {userPlaylists.map((p, i) => (
+                      <li key={i}>
+                        <button
+                          onClick={() => playPlaylist(p.username, p.playlistName, p.url, p.history)}
+                          className="text-primary hover:underline text-left"
+                        >
+                          {p.playlistName}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
