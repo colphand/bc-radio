@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { BandcampDataBlob, MoreDataResponse, ItemInfo, Track } from '@/types/bandcamp';
 import { useTrackList } from '@/hooks/useTrackList';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useAlbums } from '@/contexts/AlbumContext';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -34,6 +35,7 @@ export default function Player({
     const [sequencing, setSequencing] = useState<'shuffle' | 'alphabetic'>('shuffle');
 
     const audioRef = useRef<HTMLAudioElement>(null);
+    const { setAlbums, setCurrentUser } = useAlbums();
 
     const {
         tracks,
@@ -95,12 +97,27 @@ export default function Player({
                 }
             });
 
+            // Extract albums with better title/artist info from tracks
+            const albumsMap = new Map<string, { id: string; title: string; artist?: string; artId?: string; itemUrl?: string }>();
+
             // Extract tracks
             Object.entries(data.tracklists.collection).forEach(([albumKey, songs]) => {
                 const itemId = albumKey.substring(1); // Remove 'a' prefix
 
                 if (playlistFilterItems && !playlistFilterItems.includes(itemId)) {
                     return;
+                }
+
+                // Get first track for album info
+                if (songs.length > 0 && itemInfos[itemId] && !albumsMap.has(itemId)) {
+                    const firstTrack = songs[0];
+                    albumsMap.set(itemId, {
+                        id: itemId,
+                        title: firstTrack.artist || 'Unknown Album',
+                        artist: firstTrack.artist,
+                        artId: itemInfos[itemId].artId,
+                        itemUrl: itemInfos[itemId].itemUrl,
+                    });
                 }
 
                 songs.forEach((track, index) => {
@@ -121,6 +138,10 @@ export default function Player({
                     }
                 });
             });
+
+            // Update context with albums and user
+            setAlbums(Array.from(albumsMap.values()));
+            setCurrentUser(username);
 
             // Load more data
             if (numberToLoad > 0) {
