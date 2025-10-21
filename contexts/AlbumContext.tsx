@@ -8,6 +8,7 @@ interface Album {
     artist?: string;
     artId?: string;
     itemUrl?: string;
+    trackCount?: number;
 }
 
 interface AlbumContextType {

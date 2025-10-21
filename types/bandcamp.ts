@@ -51,6 +51,14 @@ export interface BandcampDataBlob {
   };
   collection_data: {
     last_token: string;
+    item_count?: number;
+    batch_size?: number;
+    sequence?: string[];
+    small_collection?: boolean;
+    hidden_items_count?: number;
+    purchase_infos?: Record<string, unknown>;
+    collectors?: Record<string, unknown>;
+    pending_sequence?: string[];
   };
 }
 
