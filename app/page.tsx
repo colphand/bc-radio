@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Player from '@/components/player';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -98,14 +97,17 @@ export default function Home() {
   };
 
   if (showPlayer) {
+    // Redirect to a player page or show a different interface
+    // since the BottomPlayer in layout will handle the actual playback
     return (
-      <Player
-        username={username}
-        numberToLoad={parseInt(history)}
-        identityCookie={identityCookie}
-        playlistName={searchParams.get('plname') || null}
-        playlistFilterItems={searchParams.get('pl')?.split(',') || null}
-      />
+      <div className="container mx-auto p-6 max-w-4xl">
+        <div className="text-center space-y-4">
+          <h1 className="text-3xl font-bold">Loading your collection...</h1>
+          <p className="text-muted-foreground">
+            The player will appear at the bottom once your music loads.
+          </p>
+        </div>
+      </div>
     );
   }
 
