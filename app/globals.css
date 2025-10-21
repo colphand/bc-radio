@@ -120,28 +120,3 @@
     @apply bg-background text-foreground;
   }
 }
-
-/* Scrollbar on darker modals */
-/* .scrollbar-design-darker */
-::-webkit-scrollbar-track {
-  @apply border-none bg-transparent;
-}
-::-webkit-scrollbar {
-  @apply w-2 h-2;
-}
-
-::-webkit-scrollbar-thumb {
-  @apply border-2 border-solid bg-input border-background rounded-full m-0.5;
-}
-/* Scrollbar on regular bg */ 
-/* .scrollbar-design */
-::-webkit-scrollbar-track {
-  @apply border-none bg-transparent;
-}
-::-webkit-scrollbar {
-  @apply w-2 h-2;
-}
-
-::-webkit-scrollbar-thumb {
-  @apply border-2 border-solid bg-input border-sidebar rounded-full m-0.5;
-}
