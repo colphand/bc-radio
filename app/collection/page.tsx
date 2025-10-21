@@ -99,7 +99,7 @@ export default function CollectionPage() {
                     {filteredAlbums.map((album: Album) => (
                         <Card
                             key={album.id}
-                            className="group cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
+                            className="group p-0 cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
                             onClick={() => handleAlbumClick(album)}
                         >
                             <CardContent className="p-3">

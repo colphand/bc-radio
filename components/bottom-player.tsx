@@ -387,9 +387,9 @@ export function BottomPlayer({
     return (
         <>
             <audio ref={audioRef} />
-            <div className="bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 border-t border-border/40 p-4 z-50">
+            <div className="bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 border-t border-border/40 p-4 z-50 sticky bottom-0 left-0 right-0">
                 {/* <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 border-t border-border/40 p-4 z-50"> */}
-                <div className="flex items-center gap-4 max-w-screen-2xl mx-auto">
+                <div className="grid grid-cols-3 items-center gap-4 max-w-screen-2xl mx-auto">
                     {/* Album Art & Track Info */}
                     <div className="flex items-center gap-3 min-w-0 flex-1">
                         <div className="relative w-12 h-12 bg-muted rounded-md overflow-hidden shrink-0">
@@ -522,7 +522,7 @@ export function BottomPlayer({
                     </div>
 
                     {/* Volume Control */}
-                    <div className="flex items-center gap-2 min-w-0 w-32">
+                    <div className="flex self-center place-self-end items-center gap-2 min-w-0 w-32">
                         <Volume2 className="h-4 w-4 text-muted-foreground shrink-0" />
                         <Slider
                             value={[volume]}
